@@ -1,0 +1,38 @@
+# .pre-commit-config.yaml
+#
+# Setup (once per clone):
+#   pre-commit install            # wires the git hook
+#   pre-commit run --all-files    # check everything on demand
+#
+# Lint lives here on purpose: the same ruff hooks run at local commit time and
+# in CI's pre-commit job, so local and CI can't drift. The ruff-pre-commit rev
+# carries its own ruff version; keep it in step with the ruff pin in
+# pyproject.toml when bumping. Bump pinned revs with `pre-commit autoupdate`.
+
+repos:
+  # Lint + format (ruff). ruff-check runs with --fix locally; in CI a fix
+  # means files changed, which fails the hook and shows the diff.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.2
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  # Keep uv.lock in sync with pyproject.toml.
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: "0.13.5"               # uv version, pinned so lockfile format is stable
+    hooks:
+      - id: uv-lock             # re-locks only when pyproject.toml changed
+
+  # Baseline file hygiene.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: check-yaml          # validates state machine YAML + workflow files
+      - id: check-json
+      - id: check-toml          # validates pyproject.toml + any TOML definitions

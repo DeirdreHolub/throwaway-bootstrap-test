@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref so PRs don't pile up queued jobs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege: CI only needs to read the repo.
+permissions:
+  contents: read
+
+# These three job names are the required status-check contexts in branch
+# protection (REQUIRED_CHECKS in bootstrap-repo.sh). Rename in both places.
+jobs:
+  # Hygiene + lint. Runs every hook in .pre-commit-config.yaml: ruff check,
+  # ruff format, uv.lock sync, and file checks. The same hooks run at local
+  # commit time, so local and CI cannot drift.
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          enable-cache: true
+      - name: Run pre-commit
+        run: uvx pre-commit run --all-files --show-diff-on-failure
+
+  # Type check (ty). Separate job so it can be flipped non-blocking
+  # independently (continue-on-error: true) if a ty release gets noisy.
+  # The ty version is pinned in pyproject.toml's dev group.
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run ty
+        run: uv run ty check
+
+  # --locked installs exactly what's in uv.lock and fails if the lockfile
+  # is stale, so the test environment matches what's committed.
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run tests
+        run: uv run pytest --cov --cov-report=term-missing

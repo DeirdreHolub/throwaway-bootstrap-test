@@ -1,0 +1,42 @@
+# Starter pyproject. Change name/description, add dependencies as needed.
+# Run `uv lock` after editing to generate/refresh uv.lock, and commit both.
+
+[project]
+name = "CHANGE-ME"
+version = "0.1.0"
+description = "CHANGE-ME"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.17.2",
+    # ty is pre-1.0; pin exactly so diagnostics don't shift under you.
+    # Dependabot proposes bumps as PRs; CI validates each one.
+    "ty==0.0.92",
+]
+
+# Ruff config mirrors the OCDO-Data-Inventory-Pipeline conventions.
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+# E/F/W: pyflakes+pycodestyle core, I: import sorting, UP: pyupgrade,
+# B: bugbear (catches real bugs like bare except, mutable defaults),
+# C4: comprehension cleanups, SIM: obvious simplifications.
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = [
+    "E501",  # long lines in docstrings/URLs; the formatter handles code lines
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
