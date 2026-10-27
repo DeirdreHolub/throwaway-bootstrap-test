@@ -11,7 +11,7 @@ dependencies = []
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3.0",
+    "pytest>=9.1.1",
     "pytest-cov>=6.0.0",
     "ruff>=0.17.2",
     # ty is pre-1.0; pin exactly so diagnostics don't shift under you.
