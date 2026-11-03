@@ -13,7 +13,7 @@ repos:
   # Lint + format (ruff). ruff-check runs with --fix locally; in CI a fix
   # means files changed, which fails the hook and shows the diff.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.2
+    rev: v0.17.3
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -21,7 +21,7 @@ repos:
 
   # Keep uv.lock in sync with pyproject.toml.
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.13.5"               # uv version, pinned so lockfile format is stable
+    rev: "0.13.6"               # uv version, pinned so lockfile format is stable
     hooks:
       - id: uv-lock             # re-locks only when pyproject.toml changed
 
