@@ -16,7 +16,7 @@ dev = [
     "ruff>=0.17.2",
     # ty is pre-1.0; pin exactly so diagnostics don't shift under you.
     # Dependabot proposes bumps as PRs; CI validates each one.
-    "ty==0.0.92",
+    "ty==0.0.95",
 ]
 
 # Ruff config mirrors the OCDO-Data-Inventory-Pipeline conventions.
